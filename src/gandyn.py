@@ -74,12 +74,16 @@ class GandiDomainUpdater(object):
                 zone_id
             )
             logging.debug('DNS working on a new zone (version %s)', new_zone_version)
+
             record_list = self.__api.domain.zone.record.list(
                 self.api_key,
                 zone_id,
                 new_zone_version,
                 self.record
             )
+
+            logging.debug('Updating records :%s', record_list)
+
             # Update each record that matches the filter
             for a_record in record_list:
                 # get record id
@@ -121,6 +125,16 @@ def usage(argv):
     print('\t-h --help                 : Displays this text')
 
 
+def config_logger():
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%a, %d %b %Y %H:%M:%S', level=LOG_LEVEL, filename=LOG_FILE)
+
+    # define a Handler which writes INFO messages or higher to the sys.stderr
+    console = logging.StreamHandler()
+    console.setLevel(logging.DEBUG)
+    console.setFormatter(logging.Formatter('%(name)-12s : %(levelname)-8s %(message)s'))
+    logging.getLogger('').addHandler(console)
+
+
 def main(argv, global_vars, local_vars):
     try:
         options, remainder = getopt.getopt(argv[1:], 'c:h', ['config=', 'help'])
@@ -141,29 +155,23 @@ def main(argv, global_vars, local_vars):
         usage(argv)
         exit(1)
 
+    config_logger()
+
     try:
-        logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%a, %d %b %Y %H:%M:%S', level=LOG_LEVEL, filename=LOG_FILE)
-
-        # define a Handler which writes INFO messages or higher to the sys.stderr
-        console = logging.StreamHandler()
-        console.setLevel(logging.DEBUG)
-        console.setFormatter(logging.Formatter('%(name)-12s : %(levelname)-8s %(message)s'))
-        logging.getLogger('').addHandler(console)
-
         # get current ip address
         public_ip_retriever = ipretriever.adapter.IPEcho()
         current_ip_address = public_ip_retriever.get_public_ip()
-        logging.debug('Current public IP address : %s', current_ip_address)
+        logging.info('Current public IP address : %s', current_ip_address)
 
         # get DNS record ip address
         gandi_updater = GandiDomainUpdater(API_KEY, DOMAIN_NAME, RECORD)
         previous_ip_address = gandi_updater.get_record_value()
-        logging.debug('DNS record IP address : %s', previous_ip_address)
+        logging.info('DNS record IP address : %s', previous_ip_address)
 
         if current_ip_address != previous_ip_address:
             # update record value
-            # gandi_updater.update_record_value(current_ip_address, TTL)
-            logging.info('DNS updated')
+            gandi_updater.update_record_value(current_ip_address, TTL)
+            logging.info('DNS updated to %s', current_ip_address)
         else:
             logging.debug('Public IP address unchanged. Nothing to do.')
     except xmlrpc.client.Fault as e:
