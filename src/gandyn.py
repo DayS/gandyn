@@ -5,6 +5,7 @@ import sys
 import getopt
 import xmlrpclib
 import logging
+import os
 
 import ipretriever
 import ipretriever.adapter
@@ -169,9 +170,10 @@ def main(argv, global_vars, local_vars):
         logging.info('DNS record IP address : %s', previous_ip_address)
 
         if current_ip_address != previous_ip_address:
-            # update record value
             gandi_updater.update_record_value(current_ip_address, TTL)
+
             logging.info('DNS updated to %s', current_ip_address)
+            os.system('synonotify GandyDDNSUpdate')
         else:
             logging.debug('Public IP address unchanged. Nothing to do.')
     except xmlrpclib.Fault as e:
