@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import urllib.request
+import urllib
 import re
 
 import ipretriever
@@ -14,7 +14,7 @@ class IfConfig(object):
             url_page = 'http://ifconfig.me/ip'
             public_ip = None
 
-            f = urllib.request.urlopen(url_page)
+            f = urllib.urlopen(url_page)
             data = f.read().decode("utf8")
             f.close()
             pattern = re.compile('\d+\.\d+\.\d+\.\d+')
@@ -23,7 +23,7 @@ class IfConfig(object):
                 raise ipretriever.Fault('Service ' + url_page + ' failed to return the current public IP address')
             else:
                 public_ip = result.group(0)
-        except urllib.error.URLError as e:
+        except IOError as e:
             raise ipretriever.Fault(e)
         return public_ip
 
@@ -35,7 +35,7 @@ class IPEcho(object):
             url_page = 'http://ipecho.net/plain'
             public_ip = None
 
-            f = urllib.request.urlopen(url_page)
+            f = urllib.urlopen(url_page)
             data = f.read().decode("utf8")
             f.close()
             pattern = re.compile('\d+\.\d+\.\d+\.\d+')
@@ -44,6 +44,6 @@ class IPEcho(object):
                 raise ipretriever.Fault('Service ' + url_page + ' failed to return the current public IP address')
             else:
                 public_ip = result.group(0)
-        except urllib.error.URLError as e:
+        except IOError as e:
             raise ipretriever.Fault(e)
         return public_ip

@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
 import sys
 import getopt
-import xmlrpc.client
+import xmlrpclib
 import logging
 
 import ipretriever
@@ -36,7 +36,7 @@ class GandiDomainUpdater(object):
         self.api_key = api_key
         self.domain_name = domain_name
         self.record = record
-        self.__api = xmlrpc.client.ServerProxy(ENDPOINT)
+        self.__api = xmlrpclib.ServerProxy(ENDPOINT)
         self.__zone_id = None
 
     def __get_active_zone_id(self):
@@ -101,7 +101,7 @@ class GandiDomainUpdater(object):
                     {'id': a_record_id},
                     new_record
                 )
-        except xmlrpc.client.Fault as e:
+        except xmlrpclib.Fault as e:
             # delete updated zone
             if new_zone_version is not None:
                 self.__api.domain.zone.version.delete(
@@ -174,7 +174,7 @@ def main(argv, global_vars, local_vars):
             logging.info('DNS updated to %s', current_ip_address)
         else:
             logging.debug('Public IP address unchanged. Nothing to do.')
-    except xmlrpc.client.Fault as e:
+    except xmlrpclib.Fault as e:
         logging.error('An error occured using Gandi API : %s ', e)
     except ipretriever.Fault as e:
         logging.error('An error occured retrieving public IP address : %s', e)
