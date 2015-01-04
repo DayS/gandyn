@@ -19,8 +19,8 @@ TTL = 300
 
 RECORD = {'type': 'A', 'name': '@'}
 
-LOG_LEVEL = logging.INFO
-LOG_FILE = 'gandyn.log'
+LOG_LEVEL = logging.DEBUG
+LOG_FILE = '/var/log/gandyn.log'
 
 
 class GandiDomainUpdater(object):
